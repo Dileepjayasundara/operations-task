@@ -1,5 +1,6 @@
 DB = {
-    "name": "postgres",
-    "user": "postgres",
-    "host": "localhost"
+    "name": "",
+    "user": "",
+    "host": "",
+    "password": ""
 }

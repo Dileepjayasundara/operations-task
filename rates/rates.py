@@ -1,4 +1,5 @@
 import psycopg2
+import os
 from datetime import datetime
 
 from flask import Flask, request, jsonify
@@ -11,10 +12,15 @@ import config
 def get_db_conn(db_config):
     """ Create a database connection. """
     return psycopg2.connect(
-        "dbname='{}' user='{}' host='{}'".format(
-            db_config["name"],
-            db_config["user"],
-            db_config["host"]
+        "dbname='{}' user='{}' host='{}' password='{}'".format(
+#            db_config["name"],
+#            db_config["user"],
+#            db_config["host"]
+             os.environ.get('POSTGRES_DB', db_config["name"]),
+             os.environ.get('POSTGRES_USER', db_config["user"]),
+             os.environ.get('POSTGRES_HOST', db_config["host"]),
+             os.environ.get('POSTGRES_PASSWORD', db_config["password"])
+
         )
     )
 
