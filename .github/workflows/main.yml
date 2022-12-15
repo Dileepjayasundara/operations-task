@@ -50,10 +50,10 @@ jobs:
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
     
     - name: Update task-definition-dev.json
-        run: |
+      run: |
           envsubst "`printf '${%s} ' $(sh -c "env|cut -d'=' -f1")`" < ./rates/task-def.json > ./rates/task-def.json
           echo "$(cat ./rates/task-def.json)"
-        env:
+      env:
           AWS_ACC_ID: ${{ secrets.AWS_ACCOUNT_ID }}
 
     - name: Fill in the new image ID in the Amazon ECS task definition
