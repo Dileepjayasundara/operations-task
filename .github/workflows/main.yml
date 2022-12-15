@@ -51,7 +51,7 @@ jobs:
     
     - name: Update task-definition-dev.json
       run: |
-        envsubst "`printf '${%s} ' $(sh -c "env|cut -d'=' -f1")`" < ./rates/task-def.json > ./rates/task-def.json
+        sed -i 's|$AWS_ACC_ID|'"$AWS_ACC_ID"'|' ./rates/task-def.json
         echo "$(cat ./rates/task-def.json)"
       env:
         AWS_ACC_ID: ${{ secrets.AWS_ACCOUNT_ID }}
