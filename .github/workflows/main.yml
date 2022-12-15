@@ -6,12 +6,10 @@ on:
 
 env:
   AWS_REGION: us-east-1                       # set this to your preferred AWS region, e.g. us-west-1
-  ECR_REPOSITORY: xeneta                      # set this to your Amazon ECR repository name
-  ECS_SERVICE: MY_ECS_SERVICE                 # set this to your Amazon ECS service name
-  ECS_CLUSTER: MY_ECS_CLUSTER                 # set this to your Amazon ECS cluster name
-  ECS_TASK_DEFINITION: MY_ECS_TASK_DEFINITION # set this to the path to your Amazon ECS task definition
-                                              # file, e.g. .aws/task-definition.json
-  CONTAINER_NAME: MY_CONTAINER_NAME           # set this to the name of the container in the
+  ECR_REPOSITORY: xeneta-app                  # set this to your Amazon ECR repository name
+  ECS_SERVICE: xeneta-service                 # set this to your Amazon ECS service name
+  ECS_CLUSTER: xeneta                         # set this to your Amazon ECS cluster name
+  CONTAINER_NAME: xeneta-app                  # set this to the name of the container in the
                                               # containerDefinitions section of your task definition
 
 permissions:
@@ -21,7 +19,7 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
-#    environment: production
+    environment: Dev
 
     steps:
     - name: Checkout
@@ -50,12 +48,19 @@ jobs:
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG rates/
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
+    
+    - name: Update task-definition-dev.json
+        run: |
+          envsubst "`printf '${%s} ' $(sh -c "env|cut -d'=' -f1")`" < ./rates/task-def.json > ./rates/task-def.json
+          echo "$(cat ./rates/task-def.json)"
+        env:
+          AWS_ACC_ID: ${{ secrets.AWS_ACCOUNT_ID }}
 
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def
       uses: aws-actions/amazon-ecs-render-task-definition@v1
       with:
-        task-definition: ${{ env.ECS_TASK_DEFINITION }}
+        task-definition: rates/task-def.json
         container-name: ${{ env.CONTAINER_NAME }}
         image: ${{ steps.build-image.outputs.image }}
 
