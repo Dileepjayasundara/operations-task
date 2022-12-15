@@ -73,8 +73,8 @@
     ],
     "placementConstraints": [],
     "memory": "1024",
-    "taskRoleArn": "arn:aws:iam::$AWS_ACC_ID:role/xeneta-ecs-task-role",
-    "family": "xeneta-app",
+    "taskRoleArn": "arn:aws:iam::$AWS_ACC_ID:role/xeneta-task-ecs-task-exec-role",
+    "family": "xeneta-task",
     "pidMode": null,
     "requiresCompatibilities": [
       "FARGATE"
