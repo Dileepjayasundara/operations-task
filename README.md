@@ -1,104 +1,53 @@
 # Xeneta Operations Task
 
-The task is two-fold:
-
-* A practical case of developing a deployable development environment based on a simple application.
-
-* A theoretical case describing and evolving a data ingestion pipeline.
-
-You will be expected to present and discuss both solutions.
-
-Some general points:
-
-* **Provide the solution as a public git repository that can easily be cloned by our development team.**
-
-* Provide any instructions needed to run the automation solution in `README.md`.
-
-* The configuration file `rates/config.py` has some defaults that will most likely change depending on the solution. It would be beneficial to have a way to more dynamically pass in config values.
-
-* List and describe the tool(s) used, and why they were chosen for the task.
-
-* If you have any questions, please don't hesitate to contact us.
-
 ## Practical case: Deployable development environment
 
-### Premise
+### Setting up local development environment using Docker
+#### 1. Install Docker and Docker Compose
+#### 2. Clone this repo
+#### 3. Create a file named as `.env` in repo directory and add below variable with prefered values. Keep the `POSTGRES_HOST` value as `postgresql`
+````
+POSTGRES_DB="prefered-db-name"
+POSTGRES_USER="prefered-db-username"
+POSTGRES_PASSWORD="prefered db-password"
+POSTGRES_HOST="postgresql"
+````
+#### 4. From Repo directory run below command to start application
+````
+docker-compose build && docker-compose up -d
+````
+By using Docker and Docker Compose, developers can set-up their local development environment within few seconds using a single command without worring about the related dependencies.
 
-Provided are two simplified parts of the same application environment: A database dump and an API service. Your task is to automate setting up the development environment in a reliable and testable manner using "infrastructure as code" principles.
 
-The goal is to end up with a limited set of commands that would install the different environments and run them using containers. You can use any software that you find suitable for the task. The code should come with instructions on how to run and deploy it.
+### Setting up development environment on AWS
+#### 1. Clone this repo
+#### 2. Create an AWS s3 bucket to store terraform state. Add the bucket name in `terraform/main.tf`
+#### 3. Change `terraform/terraform.tfvars` file with prefered values.
+#### 4. Run the following commands from terraform directory to provision the AWS resources
+````
+terraform init
+terraform plan
+terraform apply
+````
+#### 5. Add the following Github Actions secrets accordingly in GitHub repository
+````
+AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY
+AWS_ACC_ID 
+````
+This will enable CICD pipeline on master branch. To change the values refer to `.github/workflows/main.yml` file.
 
-### Running the database
+### HighLevel Architecture Diagram
+![HADiagram](https://user-images.githubusercontent.com/17748570/207953823-3479fa74-a6b1-41a8-9737-ea0f78c60533.png)
 
-There’s an SQL dump in `db/rates.sql` that needs to be loaded into a PostgreSQL 13.5 database.
+This AWS infrastructure is mainly proviosioned on three subnets considering the security aspects as well. It has used one public subenet to provision Elastic load balancer to maintain the high availablity of the application and one private subnets to provision ECS components and another private subnet to isolate RDS considering the security aspects. AWS Fargate Container service has been used in this deployment to run the containerzied application and to enable application scalability. Container service logs are configured access using AWS cloudwatch.
 
-After installing the database, the data can be imported through:
+RDS credentials are store in AWS systems manager parameter store to access them from ECS containers in a secure way. Randomly generated password is configured for the RDS database while provisioning it from terrraform.
 
-```
-createdb rates
-psql -h localhost -U postgres < db/rates.sql
-```
+AWS ECR is used to store container images created through github Actions. Every commit on master branch will triger the CICD pipelines on GitHub Actions.
+To change the values refer to `.github/workflows/main.yml` file in the repo.
 
-You can verify that the database is running through:
-
-```
-psql -h localhost -U postgres -c "SELECT 'alive'"
-```
-
-The output should be something like:
-
-```
- ?column?
-----------
- alive
-(1 row)
-```
-
-### Running the API service
-
-Start from the `rates` folder.
-
-#### 1. Install prerequisites
-
-```
-DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y python3-pip
-pip install -U gunicorn
-pip install -Ur requirements.txt
-```
-
-#### 2. Run the application
-```
-gunicorn -b :3000 wsgi
-```
-
-The API should now be running on [http://localhost:3000](http://localhost:3000).
-
-#### 3. Test the application
-
-Get average rates between ports:
-```
-curl "http://127.0.0.1:3000/rates?date_from=2021-01-01&date_to=2021-01-31&orig_code=CNGGZ&dest_code=EETLL"
-```
-
-The output should be something like this:
-```
-{
-   "rates" : [
-      {
-         "count" : 3,
-         "day" : "2021-01-31",
-         "price" : 1154.33333333333
-      },
-      {
-         "count" : 3,
-         "day" : "2021-01-30",
-         "price" : 1154.33333333333
-      },
-      ...
-   ]
-}
-```
-
+##
 ## Case: Data ingestion pipeline
 
 In this section we are seeking high-level answers, use a maximum of couple of paragraphs to answer the questions.
@@ -111,11 +60,18 @@ Both the incoming data updates and requests for data can be highly sporadic - th
 
 High availability is a strict requirement from the customers.
 
-* How would you design the system?
-* How would you set up monitoring to identify bottlenecks as the load grows?
-* How can those bottlenecks be addressed in the future?
+##### 1.How would you design the system?
+With the provided information, The solution should implement on event driven architecture with serverless approach since data should processed whenever its available and compute resources should be get dynamically provisioned according to the required load. Lets consider when big batches of data files get uploaded to an AWS s3 as the incoming data source. 
 
-Provide a high-level diagram, along with a few paragraphs describing the choices you've made and what factors you need to take into consideration.
+AWS eventbridge service can be used to identify the event and generate a notification. Then the next concern is how we going to implement the data processing with serverless architecture. AWS batch service can be used with this scenario. AWS Fargate jobs are available as EventBridge targets. Using simple rules, we can match events and submit AWS Batch jobs in response to them. procesed data can be stored in RDS database for the application.
+
+##### 2.How would you set up monitoring to identify bottlenecks as the load grows?
+
+Cloudwatch service can be used to monitor the AWS batch service and the status of the jobs, job queues, get container insights etc. As we store processed data on RDS we can enable cloudwatch alarms with relevent threshold.
+
+##### 3.How can those bottlenecks be addressed in the future?
+As AWS batch service is designed to managed heavy batch processing workloads, we can configure our resource requirements for the Fagate or ec2 instances.
+Database can be changed according to the future application design requirements.
 
 ### Additional questions
 
