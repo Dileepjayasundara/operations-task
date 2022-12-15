@@ -79,11 +79,4 @@ Here are a few possible scenarios where the system requirements change or the ne
 
 1. The batch updates have started to become very large, but the requirements for their processing time are strict.
 
-2. Code updates need to be pushed out frequently. This needs to be done without the risk of stopping a data update already being processed, nor a data response being lost.
-
-3. For development and staging purposes, you need to start up a number of scaled-down versions of the system.
-
-Please address *at least* one of the situations. Please describe:
-
-- Which parts of the system are the bottlenecks or problems that might make it incompatible with the new requirements?
-- How would you restructure and scale the system to address those?
+There can be bottlenecks both in datasource resources and data processing resources. In data processing we can add more compute resource requirements or configure multi-node parallel jobs execution to reduce the processing time. If we are using S3 as the injection data injection source it's a best practice to leverage multipart uploads and using Amazon S3 Transfer Acceleration.
