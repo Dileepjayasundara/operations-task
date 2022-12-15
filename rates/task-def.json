@@ -77,8 +77,7 @@
     "family": "xeneta-app",
     "pidMode": null,
     "requiresCompatibilities": [
-      "FARGATE",
-      "ECS"
+      "FARGATE"
     ],
     "networkMode": "awsvpc",
     "cpu": "256",
