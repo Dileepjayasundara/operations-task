@@ -8,7 +8,7 @@ env:
   AWS_REGION: us-east-1                       # set this to your preferred AWS region, e.g. us-west-1
   ECR_REPOSITORY: xeneta-ecr                  # set this to your Amazon ECR repository name
   ECS_SERVICE: xeneta-service                 # set this to your Amazon ECS service name
-  ECS_CLUSTER: xeneta                         # set this to your Amazon ECS cluster name
+  ECS_CLUSTER: xeneta-cluster                         # set this to your Amazon ECS cluster name
   CONTAINER_NAME: xeneta-app                  # set this to the name of the container in the
                                               # containerDefinitions section of your task definition
 
