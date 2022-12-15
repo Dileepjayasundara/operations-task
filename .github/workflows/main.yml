@@ -51,10 +51,10 @@ jobs:
     
     - name: Update task-definition-dev.json
       run: |
-          envsubst "`printf '${%s} ' $(sh -c "env|cut -d'=' -f1")`" < ./rates/task-def.json > ./rates/task-def.json
-          echo "$(cat ./rates/task-def.json)"
+        envsubst "`printf '${%s} ' $(sh -c "env|cut -d'=' -f1")`" < ./rates/task-def.json > ./rates/task-def.json
+        echo "$(cat ./rates/task-def.json)"
       env:
-          AWS_ACC_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+        AWS_ACC_ID: ${{ secrets.AWS_ACCOUNT_ID }}
 
     - name: Fill in the new image ID in the Amazon ECS task definition
       id: task-def
