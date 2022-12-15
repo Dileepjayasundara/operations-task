@@ -1,6 +1,6 @@
 aws_region        = "us-east-1"
-aws_access_key    = "AKIA2PZ2CSUKJPB4YUKE"
-aws_secret_key    = "RZbzbQYQbPiJiG/jPMyXRb1LmG3S951Zh4ZB1qeY"
+aws_access_key    = "key"
+aws_secret_key    = "secret"
 
 # these are zones and subnets examples
 availability_zones = ["us-east-1a", "us-east-1b"]
