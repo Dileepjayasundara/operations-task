@@ -40,11 +40,11 @@
         "secrets": [
           {
             "name": "POSTGRES_HOST",
-            "valueFrom": "arn:aws:ssm:us-east-1:$AWS_ACC_ID:parameter/dev/database/host"
+            "valueFrom": "arn:aws:ssm:us-east-1:$AWS_ACC_ID:parameter/database/host"
           },
           {
             "name": "POSTGRES_PASSWORD",
-            "valueFrom": "arn:aws:ssm:us-east-1:$AWS_ACC_ID:parameter/dev/database/password"
+            "valueFrom": "arn:aws:ssm:us-east-1:$AWS_ACC_ID:parameter/database/password"
           }
         ],
         "dockerSecurityOptions": null,
