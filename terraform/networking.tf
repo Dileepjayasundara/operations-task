@@ -19,6 +19,18 @@ resource "aws_subnet" "private" {
   }
 }
 
+resource "aws_subnet" "rds" {
+  vpc_id            = aws_vpc.aws-vpc.id
+  count             = length(var.database_subnets)
+  cidr_block        = element(var.database_subnets, count.index)
+  availability_zone = element(var.availability_zones, count.index)
+
+  tags = {
+    Name        = "${var.app_name}-rds-subnet-${count.index + 1}"
+    Environment = var.app_environment
+  }
+}
+
 resource "aws_subnet" "public" {
   vpc_id                  = aws_vpc.aws-vpc.id
   cidr_block              = element(var.public_subnets, count.index)
@@ -31,6 +43,8 @@ resource "aws_subnet" "public" {
     Environment = var.app_environment
   }
 }
+
+
 
 resource "aws_route_table" "public" {
   vpc_id = aws_vpc.aws-vpc.id
