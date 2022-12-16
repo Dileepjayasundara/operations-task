@@ -61,6 +61,9 @@ Both the incoming data updates and requests for data can be highly sporadic - th
 High availability is a strict requirement from the customers.
 
 ##### 1.How would you design the system?
+
+![Datainjection](https://user-images.githubusercontent.com/17748570/207991560-4acb2e90-bcc4-4a3f-b6ec-f1a9f75f6a0e.png)
+
 With the provided information, The solution should implement on event driven architecture with serverless approach since data should processed whenever its available and compute resources should be get dynamically provisioned according to the required load. Lets consider when big batches of data files get uploaded to an AWS s3 as the incoming data source. 
 
 AWS eventbridge service can be used to identify the event and generate a notification. Then the next concern is how we going to implement the data processing with serverless architecture. AWS batch service can be used with this scenario. AWS Fargate jobs are available as EventBridge targets. Using simple rules, we can match events and submit AWS Batch jobs in response to them. procesed data can be stored in RDS database for the application.
